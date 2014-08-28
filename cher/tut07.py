@@ -30,5 +30,5 @@ if __name__ == '__main__':
             'tools.response_headers.headers': [('Content-Type', 'text/plain')],
         }
     }
-    cherrypy.config.update({'server.socket_host': '192.168.235.136',})
+    cherrypy.config.update({'server.socket_host': '192.168.241.128',})
     cherrypy.quickstart(StringGeneratorWebService(), '/', conf)

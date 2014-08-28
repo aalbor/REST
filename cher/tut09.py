@@ -22,11 +22,11 @@ class StringGeneratorWebService(object):
                       [cherrypy.session.id])
             return c.fetchone()
 
-    def POST(self, length):
+    def POST(self, length=8):
         some_string = ''.join(random.sample(string.hexdigits, int(length)))
         with sqlite3.connect(DB_STRING) as c:
             c.execute("INSERT INTO user_string VALUES (?, ?)",
-                      [cherrypy.session.id, some_string])
+                       [cherrypy.session.id, some_string])
         return some_string
 
     def PUT(self, another_string):
@@ -77,5 +77,5 @@ if __name__ == '__main__':
 
     webapp = StringGenerator()
     webapp.generator = StringGeneratorWebService()
-    cherrypy.config.update({'server.socket_host': '192.168.235.136',})
+    cherrypy.config.update({'server.socket_host': '192.168.241.128',})
     cherrypy.quickstart(webapp, '/', conf)

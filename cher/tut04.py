@@ -10,14 +10,14 @@ class StringGenerator(object):
           <head></head>
           <body>
             <form method="get" action="generate">
-              <input type="text" value="8" name="length" />
+              <input type="text" value="" name="length" />
               <button type="submit">Give it now!</button>
             </form>
           </body>
         </html>"""
 
     @cherrypy.expose
-    def generate(self, length=8):
+    def generate(self, length):
         return ''.join(random.sample(string.hexdigits, int(length)))
 
 if __name__ == '__main__':

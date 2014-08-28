@@ -7,39 +7,41 @@ import cherrypy
 
 DB_STRING = "my.db"
 
+#class StringGenerator(object):
+#    @cherrypy.expose
+#    def index(self):
+#        return file('')
+
+#class StringGeneratorWebService(object):
+#    exposed = True
+
+
 class StringGenerator(object):
-    @cherrypy.expose
-    def index(self):
-        return file('')
+    @cherrypy.tools.accept(media='text/plain')
+    def getcpus(request, name):
+        with sqlite3.connect(DB_STRING) as data:
+    	    cpus = get_cpus()
+    	    cputype = cpus['type']
+    	    cpucount = cpus['cpus']
+    	    data = {}
 
-class StringGeneratorWebService(object):
-    exposed = True
+        if name == 'type':
+            try:
+                data = cputype
+            except Exception:
+                data = None
 
-@cherrypy.tools.accept(media='text/plain') #@login_required(login_url='/login/')
-def getcpus(request, name):
-    with sqlite3.connect(DB_STRING) as cpus:
-    	cpus = get_cpus()
-    	cputype = cpus['type']
-    	cpucount = cpus['cpus']
-    	data = {}
+        if name == 'count':
+            try:
+                data = cpucount
+            except Exception:
+                data = None
 
-    if name == 'type':
-        try:
-            data = cputype
-        except Exception:
-            data = None
-
-    if name == 'count':
-        try:
-            data = cpucount
-        except Exception:
-            data = None
-
-    data = json.dumps(data)
-    response = HttpResponse()
-    response['Content-Type'] = "text/javascript"
-    response.write(data)
-    return response
+        data = json.dumps(data)
+        response = HttpResponse()
+        #response['Content-Type'] = "text/javascript"
+        response.write(data)
+        return response
 
 
 def get_cpus():
@@ -98,6 +100,30 @@ def get_cpu_usage():
 
     return data
 
+def setup_database():
+    with sqlite3.connect(DB_STRING) as con:
+        con.execute("CREATE TABLE user_string (data)")
+
 if __name__ == '__main__':
-    #cherrypy.config.update({'server.socket_host': '192.168.235.139',})
-    cherrypy.quickstart(StringGenerator())
+    conf = {
+        '/': {
+            'tools.sessions.on': True,
+            'tools.staticdir.root': os.path.abspath(os.getcwd())
+        },
+        '/generator': {
+            'request.dispatch': cherrypy.dispatch.MethodDispatcher(),
+            'tools.response_headers.on': True,
+            'tools.response_headers.headers': [('Content-Type', 'text/plain')],
+        },
+        '/static': {
+            'tools.staticdir.on': True,
+            'tools.staticdir.dir': './public'
+        }
+    }
+
+    cherrypy.engine.subscribe('start', setup_database)
+
+    webapp = StringGenerator()
+    #webapp.generator = StringGeneratorWebService()
+    cherrypy.config.update({'server.socket_host': '192.168.241.128',})
+    cherrypy.quickstart(webapp, '/', conf)
