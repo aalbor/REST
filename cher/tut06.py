@@ -40,5 +40,5 @@ if __name__ == '__main__':
             'tools.staticdir.dir': './public'
         }
     }
-    cherrypy.config.update({'server.socket_host': '192.168.241.128',})
+    cherrypy.config.update({'server.socket_host': '192.168.235.136',})
     cherrypy.quickstart(StringGenerator(), '/', conf)
